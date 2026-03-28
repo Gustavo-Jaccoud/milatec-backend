@@ -1,0 +1,10 @@
+@baseUrl = http://localhost:3000
+### Login e extrair token automaticamente
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "gustavo@example.com",
+  "code":""
+}
