@@ -15,7 +15,7 @@ export class AuthService {
         private jwtService: JwtService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
         private userService: UserService,
-        private emailService: EmailService) { }
+        private emailService: EmailService,) { }
 
     async login(loginDto: LoginDto) {
         const userExists = await this.userService.getUser(loginDto.email);

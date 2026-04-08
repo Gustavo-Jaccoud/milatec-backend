@@ -7,6 +7,7 @@ import { EmailService } from 'src/email/email.service';
 import { UserService } from 'src/user/user.service';
 import { configs } from './config/auth.config';
 import { ConfigService } from '@nestjs/config';
+import { AirtableModule } from 'src/airtable/airtable.module';
 
 console.log('JWT_SECRET:', configs.secret);
 @Module({
@@ -17,7 +18,7 @@ console.log('JWT_SECRET:', configs.secret);
     secret: config.get<string>('JWT_SECRET'),
     signOptions: { expiresIn: 60 }, 
   }),
-})],
+}),AirtableModule],
   providers: [AuthService, EmailService, UserService],
   controllers: [AuthController]
 })

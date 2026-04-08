@@ -5,7 +5,7 @@ export class User{
     public name: string,
     public email: string,
     public role: UserRole,
-    public isActive: boolean = true,
+    public idEmpresa: string,
     public id?: string
   ) {}
 }
