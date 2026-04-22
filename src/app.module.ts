@@ -36,15 +36,15 @@ import strict from 'assert/strict';
           auth: {
             user: config.get('MAIL_USER'),
             pass: config.get('MAIL_PASS'),
-          },
-          template: {
+          }
+        },
+        template: {
             dir: join(__dirname, './email/templates'),
             adapter: new HandlebarsAdapter(),
             options: {
               strict: true,
             }
           }
-        },
       }),
     }),
 
