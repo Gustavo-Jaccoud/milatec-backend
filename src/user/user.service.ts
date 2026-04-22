@@ -7,12 +7,12 @@ export class UserService {
     constructor(@Inject('AIRTABLE_CLIENT') private readonly airtable: any) { }
 
     async getUser(userEmail: string) {
-        var response = await this.findByEmail("ANDRÉ SILVEIRA")
+        var response = await this.findByEmail(userEmail)
         if(!response){
             return
         }
         var user = new User(response?.nomeCompleto,
-            userEmail, UserRole.USER, response?.empresa, response?.id)
+            userEmail,response.ativo, UserRole.USER, response?.empresa, response?.id)
         console.log(user)
         return user;
     }
@@ -21,7 +21,7 @@ export class UserService {
         const records = await this.airtable('Contatos')
 
             .select({
-                filterByFormula: `{Nome completo} = "${email}"`,
+                filterByFormula: `{E-mail} = "${email}"`,
                 maxRecords: 1,
             })
             .firstPage();
@@ -34,7 +34,8 @@ export class UserService {
         return {
             id: record.id,
             nomeCompleto: record.fields["Nome completo"], 
-            empresa: record.fields["Empresa"]?.[0] || null
+            empresa: record.fields["Empresa"]?.[0] || null,
+            ativo: record.fields["Ativo"] || false
         };
 
     }

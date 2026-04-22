@@ -5,6 +5,6 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "gustavo@example.com",
+  "email": "gustavo.caua@souunit.com.br",
   "code":""
 }

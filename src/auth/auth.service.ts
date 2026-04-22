@@ -19,7 +19,7 @@ export class AuthService {
 
     async login(loginDto: LoginDto) {
         const userExists = await this.userService.getUser(loginDto.email);
-        if (!userExists) {
+        if (!userExists || !userExists.active) {
             throw new UnauthorizedException('Invalid credentials');
         }
         const cachedCode = await this.cacheManager.get<string>(loginDto.email);
@@ -61,7 +61,8 @@ export class AuthService {
         const acessToken = await this.jwtService.signAsync({
             name: user.name,
             email: user.email,
-            role: user.role
+            role: user.role,
+            idEmpresa: user.idEmpresa
         });
         return acessToken;
     }

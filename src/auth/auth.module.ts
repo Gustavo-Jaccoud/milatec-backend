@@ -16,10 +16,11 @@ console.log('JWT_SECRET:', configs.secret);
   inject: [ConfigService],
   useFactory: (config: ConfigService) => ({
     secret: config.get<string>('JWT_SECRET'),
-    signOptions: { expiresIn: 60 }, 
+    signOptions: { expiresIn: 600 }, 
   }),
 }),AirtableModule],
   providers: [AuthService, EmailService, UserService],
-  controllers: [AuthController]
+  controllers: [AuthController],
+  exports: [JwtModule]
 })
 export class AuthModule {}

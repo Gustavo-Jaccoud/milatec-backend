@@ -5,13 +5,27 @@ import { UserModule } from './user/user.module';
 import { EmailService } from './email/email.service';
 import { ConfigModule } from '@nestjs/config';
 import { AirtableModule } from './airtable/airtable.module';
+import { ConstructionModule } from './construction/construction.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/guards/auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 
 @Module({
-  imports: [AuthModule, UserModule,ConfigModule.forRoot({
-      isGlobal: true,
-    }), AirtableModule],
+  imports: [AuthModule, UserModule, ConfigModule.forRoot({
+    isGlobal: true,
+  }),JwtModule, AirtableModule, ConstructionModule],
   controllers: [AppController],
-  providers: [EmailService],
+  providers: [EmailService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    }
+  ]
 })
-export class AppModule {}
+export class AppModule { }
