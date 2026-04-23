@@ -13,6 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
+import { ProjectModule } from './project/project.module';
 import strict from 'assert/strict';
 
 
@@ -47,6 +48,7 @@ import strict from 'assert/strict';
           }
       }),
     }),
+    ProjectModule,
 
   ],
   controllers: [AppController],

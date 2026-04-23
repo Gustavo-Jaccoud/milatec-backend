@@ -14,7 +14,8 @@ export class ConstructionService {
                 "Orçamentos",
                 "Tipo de orçamento",
                 "Cidade da obra",
-                "EmpresaId"
+                "EmpresaId",
+                "Etapa do negócio"
             ],
             filterByFormula: `{EmpresaId}="recOAwFNXjz1CgW6O"`
         };

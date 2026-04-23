@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,36 +9,54 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #F6F7F8;
+            background-color: #F1F1F1;
             font-family: Arial, sans-serif;
         }
+
         .container {
             max-width: 600px;
             margin: 20px auto;
-            background-color: #ffffff;
+            background-color: #F6F7F8;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
+
         .header {
-            background-color: #00A34A ;
+            background-color: #00A34A;
             text-align: center;
-            height: 25px;
+            height: 15px;
         }
+
+        .content .img {
+            height: 30px;
+            overflow: hidden;
+        }
+
+        .content .img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transform: scale(7);
+        }
+
         .content {
             padding: 40px;
             text-align: center;
             color: #050866;
         }
+
         .content h1 {
             font-size: 24px;
             margin-bottom: 20px;
         }
+
         .content p {
             font-size: 16px;
             line-height: 1.5;
             color: #333;
         }
+
         .code-container {
             margin: 30px 0;
             padding: 20px;
@@ -45,12 +64,14 @@
             border: 2px dashed #00A34A;
             border-radius: 10px;
         }
+
         .code {
             font-size: 36px;
             font-weight: bold;
             letter-spacing: 10px;
             color: #050866;
         }
+
         .footer {
             background-color: #050866;
             color: #ffffff;
@@ -58,36 +79,44 @@
             text-align: center;
             font-size: 12px;
         }
+
         .footer p {
             margin: 5px 0;
             color: #F6F7F8;
         }
+
         .highlight {
             color: #00A34A;
             font-weight: bold;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
+
         </div>
 
         <div class="content">
+            <div class="img"><img src="https://milatec.lovable.app/assets/logo-milatec-BRtuGoQK.jpg" alt=""></div>
             <h1>Olá!</h1>
-            <p>Você solicitou um acesso à sua conta na <strong>MilaTec</strong>. <br> Use o código de verificação abaixo para concluir seu login:</p>
-            
+            <p>Você solicitou um acesso à sua conta na <strong>MilaTec</strong>. <br> Use o código de verificação abaixo
+                para concluir seu login:</p>
+
             <div class="code-container">
                 <span class="code">{{code}}</span>
             </div>
 
-            <p>Este código é válido por <strong>05 minutos</strong>. <br> Se você não solicitou este código, por favor, ignore este e-mail.</p>
+            <p>Este código é válido por <strong>05 minutos</strong>. <br> Se você não solicitou este código, por favor,
+                ignore este e-mail.</p>
         </div>
 
         <div class="footer">
-            <p><strong>MilaTec</strong> - Tecnologia e Inovação</p>
-            <p>&copy; 2024 MilaTec. Todos os direitos reservados.</p>
+            <p><strong>MilaTec</strong> - Telhados Ecológicos</p>
+            <p>&copy; 2026 MilaTec - Grupo Mila. Todos os direitos reservados.</p>
         </div>
     </div>
 </body>
+
 </html>
