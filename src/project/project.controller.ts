@@ -19,9 +19,17 @@ export class ProjectController {
         @Roles(UserRole.ADMIN, UserRole.USER)
         @Get(":id")
         async getById(@Param('id') id:string) {
-            console.log(id);
+            
             return new ApiResponse("Projeto recuperado",
             await this.projectService.getById(id));
     
+        }
+
+        @Roles(UserRole.ADMIN,UserRole.USER)
+        @Get("construction/:id")
+        async getByConstruction(@Param('id') id:string){
+            return new ApiResponse("Projetos recuperado",
+            await this.projectService.getByConstruction(id));
+
         }
 }
