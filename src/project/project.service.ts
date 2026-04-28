@@ -1,44 +1,33 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { AirtableService } from 'src/airtable/airtable.service';
+import { QueryAirtable } from 'src/airtable/query.airtable';
 import { UserRole } from 'src/user/user-role.enum';
 import { User } from 'src/user/user.model';
 
 @Injectable()
 export class ProjectService {
-    constructor(@Inject('AIRTABLE_CLIENT') private readonly airtable: any) { }
+    constructor(private readonly airtableService: AirtableService) { }
 
     async getAll(user: User) {
-
-        const query = {
-            fields: [
-                "Orçamentos",
-                "Tipo de orçamento",
-                "Cidade da obra",
-                "OrcamentosId",
-                "Etapa do negócio"
-            ],
-            filterByFormula: `{EmpresaId}="rec1chb4BKL01ZPVq"`
-        };
+        const query = new QueryAirtable([
+            "Orçamentos",
+            "Tipo de orçamento",
+            "Cidade da obra",
+            "OrcamentoId",
+            "Etapa do negócio"
+        ], `{EmpresaId}="rec1chb4BKL01ZPVq"`)
 
         if (user.role === UserRole.ADMIN) {
             query.filterByFormula = "";
         }
 
-        const records = await this.airtable('Projetos').select(query).all();
-
-        return records.map(record => ({
-            id: record.id,
-            ...record.fields
-        }));
+        return await this.airtableService.getAll("Projetos", query)
 
     }
 
     async getById(projectId: string) {
         try {
-            const record = await this.airtable('Projetos').find(projectId)
-            return {
-                id: record.id,
-                ...record.fields
-            }
+            return this.airtableService.getById("Projetos", projectId)
         }
         catch (error) {
             console.log(error)
@@ -47,23 +36,17 @@ export class ProjectService {
     }
     async getByConstruction(constructionId: string) {
         try {
-            console.log(constructionId)
-            const records = await this.airtable('Projetos').select({
-                fields: [
-                    "Projeto",
-                    "Tipo de orçamento",
-                    "ProjetoId",
-                    "Etapa do Projeto",
-                    "Quantidade",
-                    "Valor total (Projeto)",
-                    "Produto"
-                ],
-                filterByFormula: `{OrcamentoId}="${constructionId}"`
-            }).all()
-            return records.map(record => ({
-                id: record.id,
-                ...record.fields
-            }));
+            const query = new QueryAirtable([
+                "Projeto",
+                "Tipo de orçamento",
+                "ProjetoId",
+                "Etapa do Projeto",
+                "Quantidade",
+                "Valor total (Projeto)",
+                "Produto"],
+                `{OrcamentoId}="${constructionId}"`)
+
+            return await this.airtableService.getAll("Projetos", query)
         }
         catch (error) {
             console.log(error)

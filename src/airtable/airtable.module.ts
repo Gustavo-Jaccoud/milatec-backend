@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AirtableProvider } from './airtable.provider';
+import { AirtableService } from './airtable.service';
 
 @Module({
-    providers:[AirtableProvider],
-    exports:[AirtableProvider]
+    providers:[AirtableService],
+    exports:[AirtableService]
 })
 export class AirtableModule {}

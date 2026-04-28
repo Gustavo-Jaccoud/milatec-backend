@@ -14,7 +14,7 @@ import { AirtableModule } from 'src/airtable/airtable.module';
   inject: [ConfigService],
   useFactory: (config: ConfigService) => ({
     secret: config.get<string>('JWT_SECRET'),
-    signOptions: { expiresIn: 600 }, 
+    signOptions: { expiresIn: 3600 }, 
   }),
 }),AirtableModule],
   providers: [AuthService, EmailService, UserService],

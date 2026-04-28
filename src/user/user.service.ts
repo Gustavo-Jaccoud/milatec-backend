@@ -1,42 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from './user.model';
 import { UserRole } from './user-role.enum';
+import Airtable from 'airtable';
+import { AirtableService } from 'src/airtable/airtable.service';
 
 @Injectable()
 export class UserService {
-    constructor(@Inject('AIRTABLE_CLIENT') private readonly airtable: any) { }
+    constructor(private readonly airtableService: AirtableService) { }
 
     async getUser(userEmail: string) {
-        var response = await this.findByEmail(userEmail)
-        if(!response){
+        var response = await this.airtableService.getUserByEmail(userEmail)
+        if (!response) {
             return
         }
-        var user = new User(response?.nomeCompleto,
-            userEmail,response.ativo, UserRole.USER, response?.empresa, response?.id)
+        var user = new User(String(response.nomeCompleto),
+            userEmail, Boolean(response.ativo), UserRole.USER, response?.empresa, response?.id)
         console.log(user)
         return user;
     }
-
-    private async findByEmail(email: string) {
-        const records = await this.airtable('Contatos')
-
-            .select({
-                filterByFormula: `{E-mail} = "${email}"`,
-                maxRecords: 1,
-            })
-            .firstPage();
-
-        if (!records.length) return null;
-
-        console.log(records)
-        const record = records[0];
-
-        return {
-            id: record.id,
-            nomeCompleto: record.fields["Nome completo"], 
-            empresa: record.fields["Empresa"]?.[0] || null,
-            ativo: record.fields["Ativo"] || false
-        };
-
-    }
 }
+
