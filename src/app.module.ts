@@ -14,7 +14,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { ProjectModule } from './project/project.module';
-import strict from 'assert/strict';
+import { DeliveryModule } from './delivery/delivery.module';
 
 
 @Module({
@@ -49,6 +49,7 @@ import strict from 'assert/strict';
       }),
     }),
     ProjectModule,
+    DeliveryModule,
 
   ],
   controllers: [AppController],
