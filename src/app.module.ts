@@ -15,6 +15,7 @@ import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { ProjectModule } from './project/project.module';
 import { DeliveryModule } from './delivery/delivery.module';
+import { AuditModule } from './audit/audit.module';
 
 
 @Module({
@@ -50,6 +51,7 @@ import { DeliveryModule } from './delivery/delivery.module';
     }),
     ProjectModule,
     DeliveryModule,
+    AuditModule,
 
   ],
   controllers: [AppController],

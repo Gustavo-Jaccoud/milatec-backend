@@ -19,6 +19,6 @@ export class EmailService {
     catch (error) {
       console.log(error)
     }
-    console.log(`Enviando e-mail para ${to}: ${code}`);
+    console.log(`Enviando e-mail de verificacao para ${to}`);
   }
 }

@@ -5,6 +5,7 @@ import { UserService } from 'src/user/user.service';
 import { EmailService } from 'src/email/email.service';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { User } from 'src/user/user.model';
+import { AuditService } from 'src/audit/audit.service';
 
 
 
@@ -15,11 +16,23 @@ export class AuthService {
         private jwtService: JwtService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
         private userService: UserService,
-        private emailService: EmailService,) { }
+        private emailService: EmailService,
+        private auditService: AuditService,) { }
 
     async login(loginDto: LoginDto) {
         const userExists = await this.userService.getUser(loginDto.email);
         if (!userExists || !userExists.active) {
+            await this.auditService.log({
+                eventType: 'AUTH_LOGIN_FAILED',
+                actorEmail: loginDto.email,
+                actorRole: userExists?.role,
+                actorTenantId: userExists?.idEmpresa,
+                httpMethod: 'POST',
+                route: '/auth/login',
+                entity: 'auth',
+                statusCode: 401,
+                errorMessage: 'Invalid credentials',
+            });
             throw new UnauthorizedException('Invalid credentials');
         }
         const cachedCode = await this.cacheManager.get<string>(loginDto.email);
@@ -34,13 +47,49 @@ export class AuthService {
            
                 const accessToken = await this.generateToken(userExists);
                 this.cacheManager.del(loginDto.email);
+
+                await this.auditService.log({
+                    eventType: 'AUTH_LOGIN_SUCCESS',
+                    actorEmail: userExists.email,
+                    actorRole: userExists.role,
+                    actorTenantId: userExists.idEmpresa,
+                    httpMethod: 'POST',
+                    route: '/auth/login',
+                    entity: 'auth',
+                    statusCode: 200,
+                });
+
                 return { accessToken };
             }
 
         } catch (error) {
-            console.log(error);
+            await this.auditService.log({
+                eventType: 'AUTH_LOGIN_FAILED',
+                actorEmail: loginDto.email,
+                actorRole: userExists.role,
+                actorTenantId: userExists.idEmpresa,
+                httpMethod: 'POST',
+                route: '/auth/login',
+                entity: 'auth',
+                statusCode: 401,
+                errorName: (error as Error)?.name,
+                errorMessage: (error as Error)?.message ?? 'Invalid credentials',
+            });
             throw new UnauthorizedException('Invalid credentials');
         }
+
+        await this.auditService.log({
+            eventType: 'AUTH_LOGIN_FAILED',
+            actorEmail: loginDto.email,
+            actorRole: userExists.role,
+            actorTenantId: userExists.idEmpresa,
+            httpMethod: 'POST',
+            route: '/auth/login',
+            entity: 'auth',
+            statusCode: 401,
+            errorMessage: 'Verification code mismatch',
+        });
+
         throw new UnauthorizedException('Invalid credentials');
 
 
@@ -49,8 +98,6 @@ export class AuthService {
     private async sendVerificationCode(email: string) {
         const code = this.generateCode();
         await this.cacheManager.set(email, code, 60000)
-        
-        console.log("code:" +code)
         this.emailService.sendEmail(email, code)
     }
     private generateCode(): string {

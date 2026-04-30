@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "audit:test": "powershell -ExecutionPolicy Bypass -Command \"& ./scripts/audit-steps/01-reset.ps1; & ./scripts/audit-steps/02-protected-401.ps1; & ./scripts/audit-steps/03-invalid-login.ps1; & ./scripts/audit-steps/04-ok-and-404.ps1; & ./scripts/audit-steps/05-query.ps1\""
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.3.4",
@@ -32,6 +33,7 @@
     "cache-manager": "^7.2.8",
     "class-validator": "^0.15.1",
     "nodemailer": "^8.0.5",
+    "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1"
@@ -46,6 +48,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
     "@types/nodemailer": "^8.0.0",
+    "@types/pg": "^8.20.0",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",

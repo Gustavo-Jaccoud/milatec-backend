@@ -1,9 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { randomUUID } from 'crypto';
+import { AuditService } from './audit/audit.service';
+import { AuditInterceptor } from './audit/audit.interceptor';
+import { AuditExceptionFilter } from './audit/audit-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const auditService = app.get(AuditService);
+
+  app.use((req: { requestId?: string }, _res: unknown, next: () => void) => {
+    req.requestId = randomUUID();
+    next();
+  });
+
+  app.useGlobalInterceptors(new AuditInterceptor(auditService));
+  app.useGlobalFilters(new AuditExceptionFilter(auditService));
 
   const isProduction = process.env.NODE_ENV === 'production';
 

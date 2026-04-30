@@ -1,0 +1,22 @@
+services:
+  audit-postgres:
+    image: postgres:16-alpine
+    container_name: milatec-audit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: audit_db
+      POSTGRES_USER: audit_user
+      POSTGRES_PASSWORD: audit_password
+    ports:
+      - '55433:5432'
+    volumes:
+      - audit_pg_data:/var/lib/postgresql/data
+      - ./database/audit/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U audit_user -d audit_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  audit_pg_data:

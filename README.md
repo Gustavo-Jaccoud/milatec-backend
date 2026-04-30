@@ -57,6 +57,101 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Auditoria (Postgres dedicado)
+
+1. Suba o Postgres de auditoria:
+
+```bash
+docker compose -f docker-compose.audit.yml up -d
+```
+
+2. Configure as variaveis `AUDIT_DB_*` no arquivo `.env`.
+
+3. Rode a API normalmente (`npm run start:dev`).
+
+### Como validar rapidamente
+
+- Login invalido em `POST /auth/login` gera `AUTH_LOGIN_FAILED`.
+- Login valido gera `AUTH_LOGIN_SUCCESS`.
+- Requisicao sem token para rota protegida gera `AUTHN_DENIED` e `HTTP_ERROR`.
+- Requisicao autorizada para rotas `GET` gera `HTTP_ACCESS`.
+
+### Smoke test automatizado (outras maquinas)
+
+Pre-requisitos:
+
+- API rodando em `http://localhost:3000` (ou definir `API_BASE_URL`)
+- Container `milatec-audit-postgres` ativo
+- `node`, `docker` e `curl` instalados
+
+Windows (PowerShell):
+
+```bash
+npm run audit:test
+```
+
+Linux/macOS:
+
+```bash
+chmod +x ./scripts/audit-steps/*.sh
+./scripts/audit-steps/01-reset.sh
+./scripts/audit-steps/02-protected-401.sh
+./scripts/audit-steps/03-invalid-login.sh
+./scripts/audit-steps/04-ok-and-404.sh
+./scripts/audit-steps/05-query.sh
+```
+
+Scripts disponiveis:
+
+- `scripts/audit-steps/01-reset.ps1`
+- `scripts/audit-steps/02-protected-401.ps1`
+- `scripts/audit-steps/03-invalid-login.ps1`
+- `scripts/audit-steps/04-ok-and-404.ps1`
+- `scripts/audit-steps/05-query.ps1`
+- `scripts/audit-steps/01-reset.sh`
+- `scripts/audit-steps/02-protected-401.sh`
+- `scripts/audit-steps/03-invalid-login.sh`
+- `scripts/audit-steps/04-ok-and-404.sh`
+- `scripts/audit-steps/05-query.sh`
+
+Eles executam 4 cenarios (401 em rota protegida, login invalido, 200 em healthcheck e 404) e mostram os registros gravados em `audit_logs`.
+
+### Execucao fragmentada (recomendada para evitar timeout)
+
+PowerShell (Windows):
+
+```bash
+powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/01-reset.ps1
+powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/02-protected-401.ps1
+powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/03-invalid-login.ps1
+powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/04-ok-and-404.ps1
+powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/05-query.ps1
+```
+
+Bash (Linux/macOS):
+
+```bash
+chmod +x ./scripts/audit-steps/*.sh
+./scripts/audit-steps/01-reset.sh
+./scripts/audit-steps/02-protected-401.sh
+./scripts/audit-steps/03-invalid-login.sh
+./scripts/audit-steps/04-ok-and-404.sh
+./scripts/audit-steps/05-query.sh
+```
+
+Consulta SQL util:
+
+```sql
+docker exec milatec-audit-postgres psql -U audit_user -d audit_db -c "SELECT event_type, actor_email, actor_role, actor_tenant_id, route, status_code FROM audit_logs ORDER BY created_at DESC LIMIT 50;"
+```
+
+```sql
+SELECT created_at, event_type, actor_email, actor_role, actor_tenant_id, route, status_code
+FROM audit_logs
+ORDER BY created_at DESC
+LIMIT 50;
+```
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

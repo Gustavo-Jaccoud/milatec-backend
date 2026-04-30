@@ -1,0 +1,466 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ÁREA DO CLIENTE E ADMINISTRADOR
+SISTEMA DE ACOMPANHAMENTO DE ENTREGAS PARA CLIENTES
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SERGIPE
+2026
+SUMÁRIO
+
+Objetivo ……………………………………………………………………………. 4
+Princípios Gerais ……………………………………………………………...…. 4
+Visão do Cliente MilaTec ………….…………………………………………….. 5
+Visão do Administrador ………………………………….…………...…..…… 11
+Estrutura da API …………………………………………………….……..…… 12
+Integração com Airtable ………...…………………………………………….. 13
+Performance e Organização ………………………………………..………… 13
+Controle de Acesso ……………………………………………...…………….. 13
+Funcionalidades Avançadas (Desafio) …………………………………..…. 14
+Considerações Finais ……………………………………………………..…… 14
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ÁREA DO CLIENTE E ADMINISTRADOR
+SISTEMA MILATEC COM INTEGRAÇÃO VIA API E AIRTABLE
+
+1. Objetivo
+
+Este documento define, de forma estruturada, quais informações serão disponibilizadas no sistema para os clientes da MilaTec e quais serão restritas ao uso administrativo.
+
+O sistema será um painel de visualização e acompanhamento, centralizando informações de obras, projetos e entregas, com foco em transparência para o cliente e controle interno.
+
+O sistema não permitirá alterações diretas, funcionando exclusivamente como espelhamento do Airtable, garantindo consistência e uma única fonte de verdade.
+
+2. Princípios Gerais
+
+Sistema com acesso somente leitura
+Airtable como fonte única de dados
+API responsável pela leitura e organização das informações
+Separação entre visão do cliente e visão administrativa
+Exposição controlada de dados sensíveis
+Controle de acesso por perfil
+
+2.1 Estrutura de Navegação
+
+O sistema deverá permitir acesso direto às seguintes interfaces:
+Funil de Obras
+Funil de Projetos
+Programação de Entregas
+
+Cada interface organiza as informações em um contexto específico:
+
+Funil de Obras
+Apresenta a visão geral das obras e orçamentos, servindo também como base para navegação para projetos e entregas.
+
+Funil de Projetos
+Focado no detalhamento dos projetos, incluindo informações técnicas, produtos e valores.
+Programação de Entregas
+Voltada para o acompanhamento das entregas, com foco em datas, etapas e faturamento.
+
+2.2 Navegação entre Módulos
+
+O sistema deve permitir navegação entre as entidades relacionadas:
+Obra → Projetos → Entregas
+Projeto → Obra
+Entrega → Obra
+
+Essa navegação deve ocorrer de forma fluida.
+
+3. VISÃO DO CLIENTE MILATEC
+
+O cliente terá acesso apenas às informações vinculadas à sua empresa.
+
+3.1 Obras
+
+1. Objetivo da Interface
+
+Permitir ao cliente acompanhar o andamento geral das obras/orçamentos de forma visual e organizada.
+
+2. Tipo de Visualização
+
+Formato: KANBAN
+Agrupamento: por etapa da obra
+
+3. Regras de Exibição
+
+Exibir apenas obras vinculadas à empresa do cliente
+
+4. Estrutura do Card
+
+
+
+Informações exibidas:
+Nome da obra
+Tipo de orçamento
+Cidade da obra
+
+
+5. Detalhamento da Obra
+
+Ao acessar o card, exibir:
+Nome da obra
+Cidade da obra
+Quantidade
+Valor da obra
+Tipo de orçamento
+Etapa do negócio
+Empresas vinculadas
+Contatos do orçamento
+Anexo: proposta comercial
+Anexo: memorial de cálculo estrutural
+Anexo: ART
+Anexo: Pedido de compra
+
+6. Informações Relacionadas (cards com resumos superficiais de projetos e entregas)
+
+6.1 Projetos vinculados
+Nome do projeto
+Etapa do projeto
+Tipo de orçamento 
+Quantidade
+Produto
+Registro de Obra (Fotos)
+
+6.2 Entregas vinculadas
+Endereço da entrega
+
+
+Etapa da entrega
+Data de faturamento
+Quantidade
+Valor da entrega
+
+7. Pontos de Atenção para Desenvolvimento
+Garantir filtragem por empresa no backend
+Evitar carregamento excessivo de dados no detalhamento
+Manter consistência entre resumo e dados completos
+
+3.3 Projetos
+
+1. Objetivo da Interface
+Permitir acompanhamento detalhado de cada produto/projeto dentro das obras.
+
+
+2. Tipo de Visualização
+Formato: KANBAN
+Agrupamento: por etapa do projeto
+
+3. Estrutura do Card
+Informações exibidas:
+Nome do projeto
+Obra associada
+Tipo de orçamento
+
+4. Detalhamento do Projeto
+
+
+Nome do projeto
+Produto
+Tipo de projeto
+Etapa do projeto
+Quantidade
+Valor unitário
+Valor total
+Associação: Obras
+
+5. Anexos do Projeto
+Registro de obra
+Projeto executivo
+Projeto para aprovação
+
+6. Pontos de Atenção para Desenvolvimento
+Garantir acesso apenas aos projetos da empresa
+Implementar visualização adequada de anexos
+Controlar impacto de arquivos grandes
+
+3.4 Entregas
+
+1. Objetivo da Interface
+Permitir acompanhamento das entregas vinculadas às obras.
+
+2. Tipo de Visualização
+Calendário → foco em datas
+GRID → foco em dados estruturados
+
+3. Visualização em Calendário
+
+Informações exibidas no card:
+Nome da entrega
+
+
+4. Visualização em GRID
+
+Colunas obrigatórias:
+Nome da entrega
+Quantidade
+Data de faturamento
+Etapa da entrega
+Valor da entrega
+Anexo: nota fiscal
+Associação: Obras
+
+5. Detalhamento da Entrega (grid e calendário)
+
+
+
+Obra associada
+Nome da entrega
+Data da entrega
+Quantidade
+Etapa da entrega
+Data de faturamento
+Valor da entrega
+Cidade da obra
+Anexo: nota fiscal
+Anexo: romaneio de entrega
+
+6. Regra Técnica de Arquivo
+
+O romaneio deve ser disponibilizado em formato PDF, a partir da conversão de arquivos .xlsm.
+
+7. Pontos de Atenção para Desenvolvimento
+
+Garantir consistência entre GRID e calendário
+Tratar corretamente datas e formatação
+Garantir acesso seguro aos anexos
+
+3.5 Anexos
+
+1. Informações Disponíveis
+
+Nome do arquivo
+Categoria
+Data de upload
+Link para visualização ou download
+
+2. Regra de Acesso
+
+Exibir apenas anexos vinculados à empresa do cliente
+
+3. Pontos de Atenção para Desenvolvimento
+Implementar controle de acesso seguro
+Evitar exposição direta de arquivos
+Garantir compatibilidade de visualização
+
+4. VISÃO DO ADMINISTRADOR MILATEC
+
+O administrador terá acesso completo para fins de acompanhamento e gestão, sem possibilidade de edição.
+
+Diferente do cliente, que visualiza apenas os dados da sua própria empresa, o administrador terá acesso a toda a base de clientes, podendo visualizar informações de todas as empresas cadastradas no sistema.
+
+Essa é a principal diferença entre os perfis de acesso.
+
+4.1 Acessos Disponíveis
+
+Empresas
+Todas as empresas cadastradas
+
+Contatos
+Nome
+Telefone
+Relacionamentos
+
+Obras
+Todas as obras
+Etapas
+Relacionamentos
+
+Projetos
+Todos os projetos
+Quantidade e valores
+Etapas
+
+Entregas
+Todas as entregas
+Datas
+Status
+
+Anexos
+Todos os arquivos
+Categorias
+Referências
+
+5. ESTRUTURA DA API
+
+5.1 Natureza
+
+API somente leitura
+Sem operações de escrita
+Dados provenientes exclusivamente do Airtable
+
+5.2 Endpoints
+
+Cliente
+
+GET empresas
+GET obras
+GET projetos
+GET entregas
+GET anexos
+
+
+Administrador
+
+GET empresas
+GET contatos
+GET obras
+GET projetos
+GET entregas
+GET anexos
+
+6. INTEGRAÇÃO COM AIRTABLE
+
+Airtable como base principal
+API responsável por leitura e organização
+Sincronização em tempo real ou por intervalo
+Tratamento de inconsistências na API
+Nenhuma alteração fora do Airtable
+
+7. PERFORMANCE E ORGANIZAÇÃO
+
+Paginação
+Filtros por entidade
+Ordenação
+Uso de cache
+Redução de requisições
+
+8. CONTROLE DE ACESSO
+
+Cliente
+Acesso restrito aos próprios dados
+
+Administrador
+Acesso completo
+
+O controle de acesso deve ser garantido no backend, evitando exposição de dados entre empresas.
+
+9. Funcionalidades Avançadas (Desafio)
+
+Este tópico apresenta algumas ideias de evolução do sistema, focadas em automação de processos que hoje são manuais e sujeitos a erro.
+
+9.1 Validação de Nota Fiscal com IA
+
+Uma das possibilidades é a utilização de uma IA para leitura automática das notas fiscais em PDF anexadas no Airtable. Nesse cenário, o sistema extrai informações como o valor total da nota e realiza a comparação com o valor preenchido manualmente na entrega.
+
+Com isso, torna-se possível identificar de forma automática se os dados estão corretos ou se existe alguma divergência. Dessa forma, o processo de conferência se torna mais ágil e menos suscetível a erros.
+
+9.2 Conversão de Romaneio (.xlsm → PDF)
+
+Outra melhoria seria a conversão automática dos romaneios. Atualmente, esses arquivos são anexados em formato .xlsm, o que dificulta a visualização e o acesso.
+
+A proposta é que o sistema realize a conversão para PDF de forma automática, permitindo que o documento já esteja disponível para visualização diretamente no sistema, sem necessidade d
+
+e download ou uso de ferramentas externas. Isso torna o acesso mais simples e padronizado.
+
+10. CONSIDERAÇÕES FINAIS
+
+O sistema atuará como um painel de visualização estruturado, com foco em organização, transparência e segurança.
+
+Todas as alterações continuarão sendo realizadas no Airtable, garantindo consistência dos dados e redução de complexidade no sistema.
+
