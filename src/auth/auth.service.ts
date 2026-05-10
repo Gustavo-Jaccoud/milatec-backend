@@ -98,6 +98,9 @@ export class AuthService {
     private async sendVerificationCode(email: string) {
         const code = this.generateCode();
         await this.cacheManager.set(email, code, 60000)
+        if ((process.env.NODE_ENV ?? '').trim() === 'development') {
+            console.log(`[DEV_AUTH_CODE] email=${email} code=${code}`);
+        }
         this.emailService.sendEmail(email, code)
     }
     private generateCode(): string {
