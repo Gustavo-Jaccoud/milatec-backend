@@ -74,6 +74,30 @@ k6 run .\load_testing\full-load.test.js --summary-export=.\load_testing\reports\
 
 Os artefatos sao salvos em `load_testing/reports/`.
 
+## Execucao via Docker (Windows/PowerShell)
+
+Pre-requisitos:
+- Docker Desktop em execucao
+- API rodando localmente em `:3000`
+
+### 1) Rodar baseline de projetos
+
+```powershell
+docker run --rm -i -v "${PWD}:/work" -w /work grafana/k6 run load_testing/projects.test.js --env BASE_URL=http://host.docker.internal:3000 --env AUTH_TOKEN="<TOKEN>" --summary-export=load_testing/reports/projects-summary.json
+```
+
+### 2) Rodar sobrecarga completa (sem cenário de auth)
+
+```powershell
+docker run --rm -i -v "${PWD}:/work" -w /work grafana/k6 run load_testing/full-load.test.js --env BASE_URL=http://host.docker.internal:3000 --env AUTH_TOKEN="<TOKEN>" --env ENABLE_AUTH_SCENARIO=false --summary-export=load_testing/reports/full-summary.json
+```
+
+### 3) Gerar/atualizar relatório consolidado
+
+```powershell
+node .\load_testing\generate-results.js --write
+```
+
 ## Relatorio automatico (RESULTS.md)
 
 Gerar apenas no terminal (stdout):
