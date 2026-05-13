@@ -16,7 +16,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.ad
 import { ProjectModule } from './project/project.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { AuditModule } from './audit/audit.module';
-
+import { createMailTransportOptions } from './email/mail-transport.config';
 
 @Module({
   imports: [
@@ -31,31 +31,23 @@ import { AuditModule } from './audit/audit.module';
     MailerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        transport: {
-          host: config.get('MAIL_HOST'),
-          port: Number(config.get('MAIL_PORT')),
-          secure: false,
-          auth: {
-            user: config.get('MAIL_USER'),
-            pass: config.get('MAIL_PASS'),
-          }
-        },
+        transport: createMailTransportOptions(config),
         template: {
-            dir: join(__dirname, './email/templates'),
-            adapter: new HandlebarsAdapter(),
-            options: {
-              strict: true,
-            }
-          }
+          dir: join(__dirname, './email/templates'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        },
       }),
     }),
     ProjectModule,
     DeliveryModule,
     AuditModule,
-
   ],
   controllers: [AppController],
-  providers: [EmailService,
+  providers: [
+    EmailService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
@@ -63,7 +55,7 @@ import { AuditModule } from './audit/audit.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
-    }
-  ]
+    },
+  ],
 })
-export class AppModule { }
+export class AppModule {}
