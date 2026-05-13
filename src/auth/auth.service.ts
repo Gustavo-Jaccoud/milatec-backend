@@ -90,6 +90,7 @@ export class AuthService {
     await this.cacheManager.set(cooldownKey, true, RESEND_COOLDOWN_MS);
 
     try {
+      this.logDevelopmentPin(email, pin);
       await this.emailService.sendEmail(email, pin);
     } catch (error) {
       await this.cacheManager.del(pinKey);
@@ -226,6 +227,12 @@ export class AuthService {
     return Array.from({ length: PIN_LENGTH }, () =>
       Math.floor(Math.random() * 10),
     ).join('');
+  }
+
+  private logDevelopmentPin(email: string, pin: string): void {
+    if ((process.env.NODE_ENV ?? '').trim() === 'development') {
+      console.log(`[DEV_AUTH_CODE] email=${email} code=${pin}`);
+    }
   }
 
   private async generateToken(user: User): Promise<string> {
