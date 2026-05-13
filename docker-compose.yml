@@ -1,0 +1,78 @@
+# =============================================================================
+# Stack Milatec: API (Nest) + PostgreSQL de auditoria + frontend (Vite).
+#
+# Execute a partir desta pasta (milatec-backend). O frontend sobe com build
+# context em ../MilaTec-Frontend/JS — ou seja, uma pasta acima (workspace) e
+# depois dentro do repositório do front. milatec-backend e MilaTec-Frontend
+# precisam ser pastas irmãs (mesmo diretório pai).
+#
+# Uso: cd milatec-backend && docker compose up --build
+# Requer .env nesta pasta (Airtable, JWT, e-mail, etc.).
+# Só Postgres: docker compose up audit-postgres -d
+# =============================================================================
+
+services:
+  audit-postgres:
+    image: postgres:16-alpine
+    container_name: milatec-audit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: audit_db
+      POSTGRES_USER: audit_user
+      POSTGRES_PASSWORD: audit_password
+    ports:
+      - '55433:5432'
+    volumes:
+      - audit_pg_data:/var/lib/postgresql/data
+      - ./database/audit/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U audit_user -d audit_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: milatec-api
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      PORT: '3000'
+      AUDIT_DB_HOST: audit-postgres
+      AUDIT_DB_PORT: '5432'
+    depends_on:
+      audit-postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'node -e "fetch(\"http://127.0.0.1:3000/Ok\").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 90s
+
+  frontend:
+    build:
+      context: ../MilaTec-Frontend/JS
+      dockerfile: Dockerfile
+    container_name: milatec-frontend
+    restart: unless-stopped
+    ports:
+      - '5173:5173'
+    environment:
+      VITE_PROXY_API_TARGET: http://api:3000
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  audit_pg_data:

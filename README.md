@@ -57,17 +57,23 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Auditoria (Postgres dedicado)
+## Docker (Postgres de auditoria, API e frontend)
 
-1. Suba o Postgres de auditoria:
+Stack completa (na pasta `milatec-backend`):
 
 ```bash
-docker compose -f docker-compose.audit.yml up -d
+docker compose up --build
 ```
 
-2. Configure as variaveis `AUDIT_DB_*` no arquivo `.env`.
+Somente Postgres de auditoria:
 
-3. Rode a API normalmente (`npm run start:dev`).
+```bash
+docker compose up audit-postgres -d
+```
+
+1. Com a stack completa, `AUDIT_DB_HOST`/`AUDIT_DB_PORT` já apontam para o container; com API local e Postgres no Docker, configure `AUDIT_DB_*` no `.env` (ex.: host `localhost`, porta publicada `55433`).
+
+2. Rode a API fora do Docker com `npm run start:dev` quando usar só o banco via compose.
 
 ### Como validar rapidamente
 
