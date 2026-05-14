@@ -13,8 +13,11 @@ export class ProjectService {
             "Orçamentos",
             "Tipo de orçamento",
             "Cidade da obra",
+            "OrcamentoNome",
             "OrcamentoId",
-            "Etapa do negócio"
+            "Etapa do negócio",
+            "Projeto",
+            "Data de criação"
         ], `{EmpresaId}="rec1chb4BKL01ZPVq"`)
 
         if (user.role === UserRole.ADMIN) {

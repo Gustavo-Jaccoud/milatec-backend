@@ -17,6 +17,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new AuditInterceptor(auditService));
   app.useGlobalFilters(new AuditExceptionFilter(auditService));
+  app.enableCors(false);
 
   const isProduction = process.env.NODE_ENV === 'production';
 
