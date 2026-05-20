@@ -30,7 +30,7 @@ export class ProjectService {
 
     async getById(projectId: string) {
         try {
-            return this.airtableService.getById("Projetos", projectId)
+            return await this.airtableService.getById("Projetos", projectId)
         }
         catch (error) {
             console.log(error)
