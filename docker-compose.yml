@@ -1,14 +1,11 @@
 # =============================================================================
-# Stack Milatec: API (Nest) + PostgreSQL de auditoria + frontend (Vite).
-#
-# Execute a partir desta pasta (milatec-backend). O frontend sobe com build
-# context em ../MilaTec-Frontend/JS — ou seja, uma pasta acima (workspace) e
-# depois dentro do repositório do front. milatec-backend e MilaTec-Frontend
-# precisam ser pastas irmãs (mesmo diretório pai).
+# Stack Milatec: API (Nest) + PostgreSQL de auditoria.
 #
 # Uso: cd milatec-backend && docker compose up --build
 # Requer .env nesta pasta (Airtable, JWT, e-mail, etc.).
 # Só Postgres: docker compose up audit-postgres -d
+#
+# O frontend roda fora do Docker (ex.: npm run dev em MilaTec-Frontend/JS).
 # =============================================================================
 
 services:
@@ -59,20 +56,6 @@ services:
       timeout: 5s
       retries: 8
       start_period: 90s
-
-  frontend:
-    build:
-      context: ../MilaTec-Frontend/JS
-      dockerfile: Dockerfile
-    container_name: milatec-frontend
-    restart: unless-stopped
-    ports:
-      - '5173:5173'
-    environment:
-      VITE_PROXY_API_TARGET: http://api:3000
-    depends_on:
-      api:
-        condition: service_healthy
 
 volumes:
   audit_pg_data:
