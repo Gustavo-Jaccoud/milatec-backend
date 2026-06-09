@@ -21,7 +21,6 @@
     "audit:test": "powershell -ExecutionPolicy Bypass -Command \"& ./scripts/audit-steps/01-reset.ps1; & ./scripts/audit-steps/02-protected-401.ps1; & ./scripts/audit-steps/03-invalid-login.ps1; & ./scripts/audit-steps/04-ok-and-404.ps1; & ./scripts/audit-steps/05-query.ps1\""
   },
   "dependencies": {
-    "@nestjs-modules/mailer": "^2.3.4",
     "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
@@ -33,10 +32,10 @@
     "cache-manager": "^7.2.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
-    "nodemailer": "^8.0.5",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "sib-api-v3-sdk": "^8.5.0",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {

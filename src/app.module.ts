@@ -10,9 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/guards/auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
-import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { ProjectModule } from './project/project.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { AuditModule } from './audit/audit.module';
@@ -28,19 +26,6 @@ import { createMailTransportOptions } from './email/mail-transport.config';
     JwtModule,
     AirtableModule,
     ConstructionModule,
-    MailerModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        transport: createMailTransportOptions(config),
-        template: {
-          dir: join(__dirname, './email/templates'),
-          adapter: new HandlebarsAdapter(),
-          options: {
-            strict: true,
-          },
-        },
-      }),
-    }),
     ProjectModule,
     DeliveryModule,
     AuditModule,

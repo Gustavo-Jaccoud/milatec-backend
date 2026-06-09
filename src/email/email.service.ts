@@ -1,54 +1,70 @@
-import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Injectable, Logger, Optional } from '@nestjs/common';
+import * as SibApiV3Sdk from 'sib-api-v3-sdk';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
+  private readonly apiInstance: SibApiV3Sdk.TransactionalEmailsApi;
 
-  constructor(
-    private mailerService: MailerService,
-    @Optional() private configService?: ConfigService,
-  ) {}
+  constructor(private readonly configService: ConfigService) {
+    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+
+    const apiKey = defaultClient.authentications['api-key'];
+    apiKey.apiKey = this.configService.get<string>('BREVO_API_KEY')!;
+
+    this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  }
 
   async sendEmail(to: string, code: string): Promise<void> {
-    if (this.isConsoleDeliveryEnabled()) {
-      this.logger.warn(
-        `MAIL_DELIVERY_MODE=console ativo; PIN de desenvolvimento para ${to}: ${code}`,
-      );
-      return;
-    }
-
     try {
-      await this.mailerService.sendMail({
-        to,
-        subject: 'Codigo de Confirmacao MilaTec',
-        template: 'CodeEmailTemplate',
-        context: {
-          code,
-        },
+      const html = this.renderTemplate('CodeEmailTemplate', {
+        code,
       });
-    } catch (error) {
-      this.logger.error(
-        `Falha ao enviar e-mail de verificacao para ${to}`,
-        (error as Error)?.stack,
-      );
-      throw error;
-    }
 
-    this.logger.log(`E-mail de verificacao enviado para ${to}`);
+      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+      sendSmtpEmail.sender = {
+        name: 'MilaTec',
+        email: this.configService.get<string>('MAIL_FROM')!,
+      };
+
+      sendSmtpEmail.to = [
+        {
+          email: to,
+        },
+      ];
+
+      sendSmtpEmail.subject = 'Código de Confirmação MilaTec';
+      sendSmtpEmail.htmlContent = html;
+
+      const result =
+        await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+
+      console.log(result);
+
+      this.logger.log(`E-mail de verificação enviado para ${to}`);
+    } catch (error: any) {
+  console.error('BREVO ERROR:', error.response?.body);
+  console.error('BREVO ERROR FULL:', error);
+  throw error;
+}
   }
 
-  private isConsoleDeliveryEnabled(): boolean {
-    const deliveryMode = this.getConfigValue('MAIL_DELIVERY_MODE')
-      ?.trim()
-      .toLowerCase();
-    const nodeEnv = this.getConfigValue('NODE_ENV');
+  private renderTemplate(
+    templateName: string,
+    context: Record<string, any>,
+  ): string {
+    const templatePath = path.join(
+      process.cwd(),
+      'src',
+      'email',
+      'templates',
+      `${templateName}.html`,
+    );
 
-    return deliveryMode === 'console' && nodeEnv !== 'production';
-  }
-
-  private getConfigValue(key: string): string | undefined {
-    return this.configService?.get<string>(key) ?? process.env[key];
+    return fs.readFileSync(templatePath, 'utf8').replace('{{code}}', context.code);;
   }
 }
