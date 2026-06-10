@@ -1,7 +1,7 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────────────────────
 # run-tests.sh — Executor de Testes de Sobrecarga (Tarefa 5.0)
-# Uso: ./run-tests.sh [login|projects|full|all] [BASE_URL]
+# Uso: ./run-tests.sh [login|projects|construction|delivery|full|all] [BASE_URL]
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -e
@@ -10,6 +10,8 @@ TEST_TYPE=${1:-full}
 BASE_URL=${2:-http://localhost:3000}
 REPORT_DIR="./load_testing/reports/$(date +%Y-%m-%d_%H-%M-%S)"
 AUTH_TOKEN=${AUTH_TOKEN:-""}
+LOGIN_EMAIL=${LOGIN_EMAIL:-""}
+LOGIN_PIN=${LOGIN_PIN:-${LOGIN_CODE:-""}}
 
 mkdir -p "$REPORT_DIR"
 
@@ -26,7 +28,6 @@ run_test() {
   local test_file=$1
   local test_name=$2
   local output_json="$REPORT_DIR/${test_name}-results.json"
-  local output_html="$REPORT_DIR/${test_name}-report.html"
 
   echo "▶ Rodando: $test_name"
   echo "  Arquivo: $test_file"
@@ -36,6 +37,8 @@ run_test() {
   k6 run \
     --env BASE_URL="$BASE_URL" \
     --env AUTH_TOKEN="$AUTH_TOKEN" \
+    --env LOGIN_EMAIL="$LOGIN_EMAIL" \
+    --env LOGIN_PIN="$LOGIN_PIN" \
     --out json="$output_json" \
     --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" \
     "$test_file" 2>&1 | tee "$REPORT_DIR/${test_name}-console.log"
@@ -65,16 +68,24 @@ case "$TEST_TYPE" in
   projects)
     run_test "./load_testing/projects.test.js" "projects" || OVERALL_EXIT=1
     ;;
+  construction)
+    run_test "./load_testing/construction.test.js" "construction" || OVERALL_EXIT=1
+    ;;
+  delivery)
+    run_test "./load_testing/delivery.test.js" "delivery" || OVERALL_EXIT=1
+    ;;
   full)
     run_test "./load_testing/full-load.test.js" "full-load" || OVERALL_EXIT=1
     ;;
   all)
     run_test "./load_testing/login.test.js" "login" || OVERALL_EXIT=1
     run_test "./load_testing/projects.test.js" "projects" || OVERALL_EXIT=1
+    run_test "./load_testing/construction.test.js" "construction" || OVERALL_EXIT=1
+    run_test "./load_testing/delivery.test.js" "delivery" || OVERALL_EXIT=1
     run_test "./load_testing/full-load.test.js" "full-load" || OVERALL_EXIT=1
     ;;
   *)
-    echo "Tipo inválido. Use: login | projects | full | all"
+    echo "Tipo inválido. Use: login | projects | construction | delivery | full | all"
     exit 1
     ;;
 esac

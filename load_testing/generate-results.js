@@ -3,8 +3,19 @@ const path = require('path');
 const START_MARKER = '<!-- AUTO_RESULTS_START -->';
 const END_MARKER = '<!-- AUTO_RESULTS_END -->';
 
-function readJson(filePath) {
+const SUMMARY_FILES = [
+  { label: 'login.test.js', file: 'load_testing/reports/login-summary.json' },
+  { label: 'projects.test.js', file: 'load_testing/reports/projects-summary.json' },
+  { label: 'construction.test.js', file: 'load_testing/reports/construction-summary.json' },
+  { label: 'delivery.test.js', file: 'load_testing/reports/delivery-summary.json' },
+  { label: 'full-load.test.js', file: 'load_testing/reports/full-summary.json' },
+];
+
+function readJsonIfExists(filePath) {
   const abs = path.resolve(filePath);
+  if (!fs.existsSync(abs)) {
+    return null;
+  }
   return JSON.parse(fs.readFileSync(abs, 'utf8'));
 }
 
@@ -50,15 +61,15 @@ function formatSummary(label, data) {
 }
 
 function main() {
-  const projects = readJson('load_testing/reports/projects-summary.json');
-  const full = readJson('load_testing/reports/full-summary.json');
+  const sections = SUMMARY_FILES.map(({ label, file }) => {
+    const data = readJsonIfExists(file);
+    if (!data) {
+      return [`## ${label}`, `- arquivo ausente: ${file}`, ''].join('\n');
+    }
+    return formatSummary(label, data);
+  });
 
-  const output = [
-    '# Resumo automatico de load test',
-    '',
-    formatSummary('projects.test.js', projects),
-    formatSummary('full-load.test.js', full),
-  ].join('\n');
+  const output = ['# Resumo automatico de load test', '', ...sections].join('\n');
 
   if (process.argv.includes('--write')) {
     const resultsPath = path.resolve('load_testing/RESULTS.md');

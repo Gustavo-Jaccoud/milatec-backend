@@ -8,10 +8,14 @@ Foi adotado **k6** por ser simples para projeto inicial, versionável em JavaScr
 
 ```
 load_testing/
+├── auth-setup.js
 ├── config.js
 ├── login.test.js
 ├── projects.test.js
+├── construction.test.js
+├── delivery.test.js
 ├── full-load.test.js
+├── generate-results.js
 ├── run-tests.sh
 ├── RESULTS.md
 └── README.md
@@ -19,10 +23,17 @@ load_testing/
 
 ## Endpoints cobertos (backend atual)
 
-- `POST /auth/login`
-- `GET /project`
+### Autenticacao
+- `POST /auth/request-pin` — baseline de envio de PIN (`login.test.js`)
+- `POST /auth/verify-pin` — usado no `setup` para obter JWT (`auth-setup.js`)
+- `POST /auth/login` — legado; nao usado nos testes de carga
 
-> Observacao: o controller atual de `project` expoe leitura; criacao nao foi incluida para evitar falso negativo em endpoint nao implementado.
+### Leitura protegida
+- `GET /project`
+- `GET /construction`
+- `GET /delivery`
+
+> Criacao/escrita nao foi incluida para evitar falso negativo em endpoints nao implementados.
 
 ## Thresholds adotados
 
@@ -32,26 +43,37 @@ load_testing/
 
 ## Cenarios de teste
 
-- `login.test.js`: baseline de autenticacao (ramp-up simples).
+- `login.test.js`: baseline de `request-pin` (respeita cooldown de 60s por e-mail).
 - `projects.test.js`: baseline de leitura de projetos com token.
-- `full-load.test.js`: mistura de ramp-up, spike e taxa constante.
+- `construction.test.js`: baseline de leitura de obras com token.
+- `delivery.test.js`: baseline de leitura de entregas com token.
+- `full-load.test.js`: mistura de ramp-up, spike e taxa constante (projects + construction + delivery).
 
 ## Variaveis de ambiente
 
 - `BASE_URL` (default: `http://localhost:3000`)
-- `AUTH_TOKEN` (JWT para rotas protegidas)
-- `LOGIN_EMAIL` (email de teste para login)
-- `LOGIN_CODE` (codigo de verificacao para obter `accessToken`)
-- `ENABLE_AUTH_SCENARIO` (`true|false`, default `false`)
+- `AUTH_TOKEN` (JWT para rotas protegidas; evita fluxo de PIN)
+- `LOGIN_EMAIL` (e-mail cadastrado para fluxo de PIN)
+- `LOGIN_PIN` (PIN de 4 digitos; `LOGIN_CODE` aceito como alias legado)
+- `LOGIN_EMAILS` (opcional: lista separada por virgula para paralelizar `request-pin`)
+- `PIN_RESEND_COOLDOWN_SEC` (default: `65`, alinhado ao cooldown do backend)
+- `ENABLE_AUTH_SCENARIO` (`true|false`, default `false` no `full-load`)
 
-### Fluxo automatico de login no setup
+### Fluxo automatico de autenticacao no setup
 
-- Se `AUTH_TOKEN` existir, ele sera usado diretamente.
-- Se `AUTH_TOKEN` nao existir, o `setup` faz:
-  - `POST /auth/login` com `email` para disparar o codigo.
-  - `POST /auth/login` com `email + code` para obter `accessToken`.
-- Se `LOGIN_CODE` nao for informado, o teste falha cedo com mensagem orientando a rerodar apos sua logica capturar o codigo.
-- No `full-load`, mantenha `ENABLE_AUTH_SCENARIO=false` para testes focados em endpoints protegidos sem distorcer taxa de erro por MFA/codigo de login.
+Implementado em `auth-setup.js`:
+
+1. Se `AUTH_TOKEN` existir, ele e usado diretamente.
+2. Caso contrario:
+   - `POST /auth/request-pin` com `email`
+   - `POST /auth/verify-pin` com `email + pin` para obter `accessToken`
+3. Se `LOGIN_PIN` nao for informado, o teste falha cedo orientando a capturar o PIN (logs `[DEV_AUTH_CODE]` em desenvolvimento).
+
+### Observacao sobre `request-pin` sob carga
+
+O backend aplica cooldown de 60s por e-mail. Com um unico `LOGIN_EMAIL`, `login.test.js` usa `sleep(65)` entre iteracoes. Para carga paralela de auth, informe varios e-mails cadastrados em `LOGIN_EMAILS`.
+
+No `full-load`, mantenha `ENABLE_AUTH_SCENARIO=false` para evitar distorcer metricas por cooldown/rate-limit de PIN.
 
 ## Execucao
 
@@ -59,17 +81,21 @@ No Bash/Git Bash:
 
 ```bash
 chmod +x ./load_testing/run-tests.sh
-./load_testing/run-tests.sh full http://localhost:3000
+./load_testing/run-tests.sh all http://localhost:3000
 ```
 
-No PowerShell (Windows), execute direto com k6:
+No PowerShell (Windows), execute via Docker:
 
 ```powershell
-$env:BASE_URL="http://localhost:3000"
-$env:AUTH_TOKEN=""
+$env:BASE_URL="http://host.docker.internal:3000"
+$env:AUTH_TOKEN="<TOKEN>"
 $env:LOGIN_EMAIL="seu-email@teste.com"
-$env:LOGIN_CODE="ABCDE"
-k6 run .\load_testing\full-load.test.js --summary-export=.\load_testing\reports\full-summary.json
+$env:LOGIN_PIN="1234"
+
+docker run --rm -i -v "${PWD}:/work" -w /work grafana/k6 run load_testing/projects.test.js `
+  --env BASE_URL=$env:BASE_URL `
+  --env AUTH_TOKEN=$env:AUTH_TOKEN `
+  --summary-export=load_testing/reports/projects-summary.json
 ```
 
 Os artefatos sao salvos em `load_testing/reports/`.
@@ -86,13 +112,19 @@ Pre-requisitos:
 docker run --rm -i -v "${PWD}:/work" -w /work grafana/k6 run load_testing/projects.test.js --env BASE_URL=http://host.docker.internal:3000 --env AUTH_TOKEN="<TOKEN>" --summary-export=load_testing/reports/projects-summary.json
 ```
 
-### 2) Rodar sobrecarga completa (sem cenário de auth)
+### 2) Rodar baseline de auth (request-pin)
+
+```powershell
+docker run --rm -i -v "${PWD}:/work" -w /work grafana/k6 run load_testing/login.test.js --env BASE_URL=http://host.docker.internal:3000 --env LOGIN_EMAIL="seu-email@teste.com" --summary-export=load_testing/reports/login-summary.json
+```
+
+### 3) Rodar sobrecarga completa (sem cenario de auth)
 
 ```powershell
 docker run --rm -i -v "${PWD}:/work" -w /work grafana/k6 run load_testing/full-load.test.js --env BASE_URL=http://host.docker.internal:3000 --env AUTH_TOKEN="<TOKEN>" --env ENABLE_AUTH_SCENARIO=false --summary-export=load_testing/reports/full-summary.json
 ```
 
-### 3) Gerar/atualizar relatório consolidado
+### 4) Gerar/atualizar relatorio consolidado
 
 ```powershell
 node .\load_testing\generate-results.js --write
@@ -100,33 +132,12 @@ node .\load_testing\generate-results.js --write
 
 ## Relatorio automatico (RESULTS.md)
 
-Gerar apenas no terminal (stdout):
-
 ```powershell
-node .\load_testing\generate-results.js
-```
-
-Gerar e atualizar automaticamente a secao no arquivo `load_testing/RESULTS.md`:
-
-```powershell
-node .\load_testing\generate-results.js --write
-```
-
-Fluxo recomendado apos cada rodada:
-
-```powershell
-# 1) Executar teste
-docker run --rm -i -v "${PWD}:/work" -w /work grafana/k6 run load_testing/projects.test.js --env BASE_URL=http://host.docker.internal:3000 --env AUTH_TOKEN="<TOKEN>" --summary-export=load_testing/reports/projects-summary.json
-
-# 2) (Opcional) Executar full-load
-docker run --rm -i -v "${PWD}:/work" -w /work grafana/k6 run load_testing/full-load.test.js --env BASE_URL=http://host.docker.internal:3000 --env AUTH_TOKEN="<TOKEN>" --env ENABLE_AUTH_SCENARIO=false --summary-export=load_testing/reports/full-summary.json
-
-# 3) Atualizar relatorio
 node .\load_testing\generate-results.js --write
 ```
 
 ## Como evoluir depois do MVP
 
 - Adicionar cenarios separados por perfil (admin x user).
-- Cobrir novos endpoints criticos (construction, delivery).
+- Cobrir endpoints de detalhe (`GET /:id`, `GET /construction/:id`).
 - Automatizar execucao no CI em janela noturna ou manual.

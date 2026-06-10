@@ -1,14 +1,8 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Rate, Trend } from 'k6/metrics';
-import {
-  AUTH_TOKEN,
-  BASE_URL,
-  bearerHeaders,
-  DEFAULT_HEADERS,
-  LOGIN_CODE,
-  LOGIN_EMAIL,
-} from './config.js';
+import { obtainAccessToken } from './auth-setup.js';
+import { BASE_URL, bearerHeaders } from './config.js';
 
 const errorRate = new Rate('error_rate');
 const projectsDuration = new Trend('projects_duration');
@@ -36,41 +30,7 @@ export const options = {
 };
 
 export function setup() {
-  if (AUTH_TOKEN) {
-    return { token: AUTH_TOKEN };
-  }
-
-  if (!LOGIN_EMAIL) {
-    throw new Error('Defina LOGIN_EMAIL para executar projects.test.js sem AUTH_TOKEN.');
-  }
-
-  const triggerRes = http.post(
-    `${BASE_URL}/auth/login`,
-    JSON.stringify({ email: LOGIN_EMAIL }),
-    { headers: DEFAULT_HEADERS, tags: { endpoint: 'setup_login_trigger' } }
-  );
-
-  if (triggerRes.status !== 200) {
-    throw new Error(`Falha ao disparar codigo de login. Status: ${triggerRes.status}`);
-  }
-
-  if (!LOGIN_CODE) {
-    throw new Error(
-      'Codigo disparado com sucesso. Defina LOGIN_CODE (obtido pela sua logica) e execute novamente.'
-    );
-  }
-
-  const tokenRes = http.post(
-    `${BASE_URL}/auth/login`,
-    JSON.stringify({ email: LOGIN_EMAIL, code: LOGIN_CODE }),
-    { headers: DEFAULT_HEADERS, tags: { endpoint: 'setup_login_exchange' } }
-  );
-
-  if (tokenRes.status !== 200 || !tokenRes.json('accessToken')) {
-    throw new Error(`Falha ao trocar codigo por token. Status: ${tokenRes.status}`);
-  }
-
-  return { token: tokenRes.json('accessToken') };
+  return obtainAccessToken();
 }
 
 export default function (data) {
@@ -82,7 +42,7 @@ export default function (data) {
   });
 
   const listOk = check(listRes, {
-    'lista: status 200':  (r) => r.status === 200,
+    'lista: status 200': (r) => r.status === 200,
     'lista: tempo < 500ms': (r) => r.timings.duration < 500,
   });
 
