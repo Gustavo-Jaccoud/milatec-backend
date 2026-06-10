@@ -2,57 +2,52 @@
 
 ## Contexto da execucao
 
-- Data: 2026-05-10
-- Ambiente: desenvolvimento
-- Base URL: `http://host.docker.internal:3000` (execucao via Docker)
+- Data: 2026-06-10
+- Ambiente: desenvolvimento (Docker)
+- Base URL: `http://host.docker.internal:3000`
+- Scripts atualizados: `request-pin`/`verify-pin`, `construction`, `delivery`
 - Commit: nao coletado nesta rodada
 - Responsavel: Hugo + Codex
 
-## Rodada 1 - Baseline de leitura (projects.test.js)
+## Rodada 1 - Baselines (ate 30 VUs)
 
-- Script: `projects.test.js`
-- Duracao: `2m40s`
-- VUs maximos: `30`
+| Script | p95 | error_rate | http_req_failed | Status |
+|--------|-----|------------|-----------------|--------|
+| `login.test.js` (request-pin) | 224ms | 0.00% | 0.00% | OK |
+| `projects.test.js` | 522ms | 6.49%* | 0.00% | Latencia* |
+| `construction.test.js` | 270ms | 0.61% | 0.00% | OK |
+| `delivery.test.js` | 255ms | 0.44% | 0.00% | OK |
 
-## Metricas principais
-
-- `http_req_duration p(95)`: `244.23ms`
-- `http_req_duration p(99)`: `485.65ms`
-- `http_req_failed`: `0.00%`
-- `error_rate`: `0.93%`
-- `http_reqs`: `3728` (`23.20 req/s`)
-
-## Status dos thresholds
-
-- [x] `p(95) < 500ms`
-- [x] `error_rate < 1%`
-- [x] `http_req_failed < 1%`
+\* `projects.test.js` rodou logo apos o `full-load` (API ainda quente); em rodada isolada anterior passou com p95=286ms.
 
 ## Rodada 2 - Sobrecarga completa (full-load.test.js)
 
 - Script: `full-load.test.js` (`ENABLE_AUTH_SCENARIO=false`)
-- Duracao: ~`8m`
+- Endpoints: `project` + `construction` + `delivery` por iteracao
+- Duracao: `8m`
 - VUs maximos: `234`
+- Requisicoes: `14505` (`30.22 req/s`)
 
 ### Metricas principais
 
-- `http_req_duration p(95)`: `2.96s`
-- `http_req_duration p(99)`: `6.2s`
-- `http_req_failed`: `0.00%`
-- `error_rate`: `0.00%`
-- `http_reqs`: `9018` (`19.88 req/s`)
+- `http_req_duration p(95)`: `5.27s`
+- `http_req_duration p(99)`: `19.45s`
+- `http_req_failed`: `0.11%`
+- `error_rate`: `0.11%`
 
 ### Status dos thresholds
 
 - [ ] `p(95) < 500ms` (falhou)
+- [ ] `p(99) < 1000ms` (falhou)
 - [x] `error_rate < 1%`
 - [x] `http_req_failed < 1%`
 
 ## Gargalos observados
 
-- Sob carga alta, latencia cresce fortemente (p95 em segundos), apesar de sem falhas HTTP.
-- Principal impacto concentrado em leitura de `GET /project` (cauda longa de resposta).
-- Logs de auditoria e integracoes externas podem aumentar custo por request em cenarios de pico.
+- Sob spike (200 VUs), latencia explode para segundos em todos os endpoints de leitura.
+- Timeouts de ate ~60s em algumas requisicoes durante pico (`max` ~60s).
+- `full-load` triplicou carga por iteracao (3 endpoints); throughput subiu, mas latencia piorou vs rodada anterior.
+- Integracoes externas (Airtable) e auditoria continuam como suspeitos de custo por request.
 
 ## Recomendacoes
 
@@ -72,7 +67,10 @@ node .\load_testing\generate-results.js
 ```
 
 O script le:
+- `load_testing/reports/login-summary.json`
 - `load_testing/reports/projects-summary.json`
+- `load_testing/reports/construction-summary.json`
+- `load_testing/reports/delivery-summary.json`
 - `load_testing/reports/full-summary.json`
 
 E imprime um bloco Markdown com:
@@ -95,22 +93,53 @@ Assim o relatorio final fica repetivel e sem trabalho manual.
 <!-- AUTO_RESULTS_START -->
 # Resumo automatico de load test
 
-## projects.test.js
-- p95: 244.23ms
-- p99: n/a
-- erro (custom): 0.94%
-- falha HTTP: 0.00%
-- throughput: 23.21 req/s
-- checks com impacto:
-- lista: tempo < 500ms: 35 falhas
-
-## full-load.test.js
-- p95: 2969.92ms
+## login.test.js
+- p95: 223.71ms
 - p99: n/a
 - erro (custom): 0.00%
 - falha HTTP: 0.00%
-- throughput: 19.89 req/s
+- throughput: 0.02 req/s
+- checks com impacto: nenhum
+
+## projects.test.js
+- p95: 522.45ms
+- p99: n/a
+- erro (custom): 6.49%
+- falha HTTP: 0.00%
+- throughput: 21.45 req/s
 - checks com impacto:
-- [projects] list < 500ms: 1692 falhas
+- lista: tempo < 500ms: 223 falhas
+
+## construction.test.js
+- p95: 269.84ms
+- p99: n/a
+- erro (custom): 0.61%
+- falha HTTP: 0.00%
+- throughput: 22.57 req/s
+- checks com impacto:
+- lista: tempo < 500ms: 22 falhas
+
+## delivery.test.js
+- p95: 255.43ms
+- p99: n/a
+- erro (custom): 0.44%
+- falha HTTP: 0.00%
+- throughput: 22.84 req/s
+- checks com impacto:
+- lista: tempo < 500ms: 16 falhas
+
+## full-load.test.js
+- p95: 5271.72ms
+- p99: n/a
+- erro (custom): 0.11%
+- falha HTTP: 0.11%
+- throughput: 30.22 req/s
+- checks com impacto:
+- [projects] list 200: 9 falhas
+- [projects] list < 500ms: 1284 falhas
+- [construction] list 200: 3 falhas
+- [construction] list < 500ms: 1210 falhas
+- [delivery] list 200: 4 falhas
+- [delivery] list < 500ms: 1166 falhas
 
 <!-- AUTO_RESULTS_END -->
