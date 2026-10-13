@@ -1,201 +1,43 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🏛️ Mandatuum — Sistema de Gerenciamento de Mandato
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+**Tecnologia e inteligência artificial a serviço de uma gestão mais eficiente, integrada e estratégica.**
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+O **Mandatuum** é uma plataforma digital de gerenciamento de mandatos, desenvolvida em parceria com a **SEMDE (Secretaria Municipal de Desenvolvimento Econômico)**, com o propósito de modernizar a gestão de gabinetes por meio da centralização de informações, organização de atividades e integração da comunicação.
 
-## Description
+A proposta do projeto é transformar a maneira como as informações e demandas de um mandato são gerenciadas, oferecendo um ambiente único que facilite o acompanhamento das atividades, otimize processos e contribua para uma administração mais organizada e eficiente.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 💡 A ideia
 
-## Project setup
+Em um cenário no qual a gestão de um mandato envolve diferentes informações, demandas, atividades e processos de comunicação, manter tudo organizado e acessível é um desafio.
 
-```bash
-$ npm install
-```
+O Mandatuum surge como uma solução para esse desafio, reunindo recursos de gerenciamento em uma única plataforma e utilizando a tecnologia para simplificar processos, melhorar o fluxo de informações e proporcionar uma visão mais ampla das atividades do gabinete.
 
-## Compile and run the project
+Além disso, a integração com inteligência artificial amplia as possibilidades da plataforma, permitindo gerar insights estratégicos que auxiliam na interpretação de informações e apoiam a tomada de decisões.
 
-```bash
-# development
-$ npm run start
+## 🎯 Objetivos do projeto
 
-# watch mode
-$ npm run start:dev
+- **Centralizar informações:** reunir dados e informações relevantes do mandato em um único ambiente.
+- **Otimizar processos:** facilitar o gerenciamento e o acompanhamento das atividades do gabinete.
+- **Integrar a comunicação:** tornar a organização das informações e das interações mais eficiente.
+- **Apoiar decisões estratégicas:** utilizar inteligência artificial para gerar insights a partir dos dados disponíveis.
+- **Modernizar a gestão:** aplicar soluções tecnológicas para promover mais organização, eficiência e produtividade.
 
-# production mode
-$ npm run start:prod
-```
+## 🤖 Tecnologia e inteligência artificial
 
-## Run tests
+O Mandatuum combina desenvolvimento web e inteligência artificial para oferecer uma abordagem moderna à gestão de mandatos.
 
-```bash
-# unit tests
-$ npm run test
+A integração com a API Gemini possibilita explorar recursos de inteligência artificial voltados à geração de insights estratégicos, agregando valor às informações disponíveis e auxiliando no planejamento e na tomada de decisões.
 
-# e2e tests
-$ npm run test:e2e
+## 🛠️ Tecnologias utilizadas
 
-# test coverage
-$ npm run test:cov
-```
+- **TypeScript** — desenvolvimento com tipagem estática.
+- **NestJS** — estruturação do backend e das APIs.
+- **PostgreSQL** — armazenamento e gerenciamento de dados.
+- **Vue.js** — construção da interface da plataforma.
+- **Google Gemini API** — integração de recursos de inteligência artificial.
 
-## Docker (Postgres de auditoria e API)
+## 🌐 Visão do projeto
 
-API + Postgres (na pasta `milatec-backend`):
+Mais do que um sistema de gerenciamento, o Mandatuum representa uma proposta de transformação digital na administração de mandatos, utilizando dados, integração e inteligência artificial para tornar os processos mais eficientes e a gestão mais estratégica.
 
-```bash
-docker compose up --build
-```
-
-Somente Postgres de auditoria:
-
-```bash
-docker compose up audit-postgres -d
-```
-
-1. Com `docker compose up`, `AUDIT_DB_HOST`/`AUDIT_DB_PORT` já apontam para o container; com API local e Postgres no Docker, configure `AUDIT_DB_*` no `.env` (ex.: host `localhost`, porta publicada `55433`).
-
-2. Rode a API fora do Docker com `npm run start:dev` quando usar só o banco via compose.
-
-3. O frontend não entra no Compose; suba localmente em `MilaTec-Frontend/JS` com `npm run dev` (ou `yarn dev`).
-
-### Como validar rapidamente
-
-- Login invalido em `POST /auth/login` gera `AUTH_LOGIN_FAILED`.
-- Login valido gera `AUTH_LOGIN_SUCCESS`.
-- Requisicao sem token para rota protegida gera `AUTHN_DENIED` e `HTTP_ERROR`.
-- Requisicao autorizada para rotas `GET` gera `HTTP_ACCESS`.
-
-### Smoke test automatizado (outras maquinas)
-
-Pre-requisitos:
-
-- API rodando em `http://localhost:3000` (ou definir `API_BASE_URL`)
-- Container `milatec-audit-postgres` ativo
-- `node`, `docker` e `curl` instalados
-
-Windows (PowerShell):
-
-```bash
-npm run audit:test
-```
-
-Linux/macOS:
-
-```bash
-chmod +x ./scripts/audit-steps/*.sh
-./scripts/audit-steps/01-reset.sh
-./scripts/audit-steps/02-protected-401.sh
-./scripts/audit-steps/03-invalid-login.sh
-./scripts/audit-steps/04-ok-and-404.sh
-./scripts/audit-steps/05-query.sh
-```
-
-Scripts disponiveis:
-
-- `scripts/audit-steps/01-reset.ps1`
-- `scripts/audit-steps/02-protected-401.ps1`
-- `scripts/audit-steps/03-invalid-login.ps1`
-- `scripts/audit-steps/04-ok-and-404.ps1`
-- `scripts/audit-steps/05-query.ps1`
-- `scripts/audit-steps/01-reset.sh`
-- `scripts/audit-steps/02-protected-401.sh`
-- `scripts/audit-steps/03-invalid-login.sh`
-- `scripts/audit-steps/04-ok-and-404.sh`
-- `scripts/audit-steps/05-query.sh`
-
-Eles executam 4 cenarios (401 em rota protegida, login invalido, 200 em healthcheck e 404) e mostram os registros gravados em `audit_logs`.
-
-### Execucao fragmentada (recomendada para evitar timeout)
-
-PowerShell (Windows):
-
-```bash
-powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/01-reset.ps1
-powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/02-protected-401.ps1
-powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/03-invalid-login.ps1
-powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/04-ok-and-404.ps1
-powershell -ExecutionPolicy Bypass -File ./scripts/audit-steps/05-query.ps1
-```
-
-Bash (Linux/macOS):
-
-```bash
-chmod +x ./scripts/audit-steps/*.sh
-./scripts/audit-steps/01-reset.sh
-./scripts/audit-steps/02-protected-401.sh
-./scripts/audit-steps/03-invalid-login.sh
-./scripts/audit-steps/04-ok-and-404.sh
-./scripts/audit-steps/05-query.sh
-```
-
-Consulta SQL util:
-
-```sql
-docker exec milatec-audit-postgres psql -U audit_user -d audit_db -c "SELECT event_type, actor_email, actor_role, actor_tenant_id, route, status_code FROM audit_logs ORDER BY created_at DESC LIMIT 50;"
-```
-
-```sql
-SELECT created_at, event_type, actor_email, actor_role, actor_tenant_id, route, status_code
-FROM audit_logs
-ORDER BY created_at DESC
-LIMIT 50;
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+A iniciativa busca demonstrar como a tecnologia pode contribuir para uma administração moderna, conectada e orientada por informações.
